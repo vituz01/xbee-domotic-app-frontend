@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XBee Touch Controller</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .mode-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .mode-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .mode-card.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .mode-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .mode-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .mode-card p {
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+        
+        .config-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .mode-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .config-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 XBee Touch Controller</h1>
+            <p>Controlla il tuo sistema con un semplice tocco</p>
+        </div>
+        
+        <div class="content">
+            <!-- Status del Sistema -->
+            <div class="section">
+                <h2>📊 Status Sistema</h2>
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Sistema in funzione</span>
+                </div>
+                <p><strong>Modalità attuale:</strong> <span id="currentMode">LED</span></p>
+                <p><strong>Ultimo aggiornamento:</strong> <span id="lastUpdate">Caricamento...</span></p>
+            </div>
+            
+            <!-- Selezione Modalità -->
+            <div class="section">
+                <h2>🎯 Seleziona Modalità</h2>
+                <div class="mode-selector">
+                    <div class="mode-card" data-mode="led">
+                        <div class="icon">💡</div>
+                        <h3>LED</h3>
+                        <p>Controlla l'intensità del LED</p>
+                    </div>
+                    
+                    <div class="mode-card" data-mode="web">
+                        <div class="icon">🌐</div>
+                        <h3>Web</h3>
+                        <p>Riproduci video dal web</p>
+                    </div>
+                    
+                    <div class="mode-card" data-mode="ppt">
+                        <div class="icon">📽</div>
+                        <h3>Presentazione</h3>
+                        <p>Controlla presentazioni</p>
+                    </div>
+                    
+                    <div class="mode-card" data-mode="chromecast">
+                        <div class="icon">📺</div>
+                        <h3>Chromecast</h3>
+                        <p>Riproduci su TV</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Configurazione -->
+            <div class="section">
+                <h2>⚙ Configurazione</h2>
+                <form id="configForm">
+                    <div class="config-form">
+                        <div class="form-group">
+                            <label for="webUrl">🌐 URL Web</label>
+                            <input type="url" id="webUrl" name="web_url" 
+                                   placeholder="https://www.youtube.com/watch?v=...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="pptPath">📽 Percorso Presentazione</label>
+                            <input type="text" id="pptPath" name="ppt_path" 
+                                   placeholder="/home/pi/presentations/presentation.pptx">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="chromecastName">📺 Nome Chromecast</label>
+                            <input type="text" id="chromecastName" name="chromecast_name" 
+                                   placeholder="Office TV">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="youtubeId">🎥 ID Video YouTube</label>
+                            <input type="text" id="youtubeId" name="youtube_video_id" 
+                                   placeholder="K3OLrDA_nto">
+                        </div>
+                    </div>
+                    
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary">💾 Salva Configurazione</button>
+                        <button type="button" class="btn btn-secondary" id="testBtn">🧪 Test Azione</button>
+                        <button type="button" class="btn btn-secondary" id="refreshBtn">🔄 Aggiorna Status</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Istruzioni -->
+            <div class="section">
+                <h2>📖 Istruzioni</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div style="background: white; padding: 20px; border-radius: 10px;">
+                        <h3>💡 Modalità LED</h3>
+                        <p><strong>Tocco breve:</strong> Cambia intensità LED</p>
+                        <p>Il LED varia da spento a massima intensità</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 10px;">
+                        <h3>🌐 Modalità Web</h3>
+                        <p><strong>Primo tocco:</strong> Apre il video</p>
+                        <p><strong>Tocchi successivi:</strong> Play/Pausa</p>
+                        <p><strong>Tocco lungo (3s):</strong> Chiude il video</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 10px;">
+                        <h3>📽 Modalità Presentazione</h3>
+                        <p><strong>Primo tocco:</strong> Apre presentazione</p>
+                        <p><strong>Tocchi successivi:</strong> Prossima slide</p>
+                        <p><strong>Tocco lungo (3s):</strong> Chiude presentazione</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 10px;">
+                        <h3>📺 Modalità Chromecast</h3>
+                        <p><strong>Primo tocco:</strong> Avvia video</p>
+                        <p><strong>Tocchi successivi:</strong> Play/Pausa</p>
+                        <p><strong>Tocco lungo (3s):</strong> Stop video</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alert container -->
+    <div id="alertContainer"></div>
+    
+    <script>
+        let currentConfig = {};
+        
+        // Carica configurazione all'avvio
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig();
+            updateStatus();
+            
+            // Aggiorna status ogni 30 secondi
+            setInterval(updateStatus, 30000);
+        });
+        
+        // Gestione click modalità
+        document.querySelectorAll('.mode-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const mode = this.dataset.mode;
+                selectMode(mode);
+            });
+        });
+        
+        // Gestione form configurazione
+        document.getElementById('configForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveConfig();
+        });
+        
+        // Gestione bottoni
+        document.getElementById('testBtn').addEventListener('click', testAction);
+        document.getElementById('refreshBtn').addEventListener('click', updateStatus);
+        
+        function selectMode(mode) {
+            // Aggiorna UI
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+            
+            // Aggiorna configurazione
+            currentConfig.modalità_corrente = mode;
+            
+            // Invia al server
+            fetch('/api/config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({modalità_corrente: mode})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showAlert('Modalità cambiata con successo!', 'success');
+                    document.getElementById('currentMode').textContent = mode.toUpperCase();
+                } else {
+                    showAlert('Errore nel cambio modalità', 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('Errore di connessione', 'error');
+            });
+        }
+        
+        function loadConfig() {
+            fetch('/api/config')
+                .then(response => response.json())
+                .then(data => {
+                    currentConfig = data;
+                    updateUI();
+                })
+                .catch(error => {
+                    showAlert('Errore caricamento configurazione', 'error');
+                });
+        }
+        
+        function saveConfig() {
+            const formData = new FormData(document.getElementById('configForm'));
+            const config = {};
+            
+            for (let [key, value] of formData.entries()) {
+                config[key] = value;
+            }
+            
+            fetch('/api/config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(config)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showAlert('Configurazione salvata!', 'success');
+                    loadConfig();
+                } else {
+                    showAlert('Errore salvataggio configurazione', 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('Errore di connessione', 'error');
+            });
+        }
+        
+        function updateStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    const statusDot = document.getElementById('statusDot');
+                    const statusText = document.getElementById('statusText');
+                    
+                    if (data.status === 'running') {
+                        statusDot.style.background = '#28a745';
+                        statusText.textContent = 'Sistema in funzione';
+                    } else {
+                        statusDot.style.background = '#dc3545';
+                        statusText.textContent = 'Sistema offline';
+                    }
+                    
+                    const lastUpdate = new Date(data.timestamp);
+                    document.getElementById('lastUpdate').textContent = lastUpdate.toLocaleString('it-IT');
+                })
+                .catch(error => {
+                    document.getElementById('statusDot').style.background = '#ffc107';
+                    document.getElementById('statusText').textContent = 'Errore connessione';
+                });
+        }
+        
+        function testAction() {
+            const currentMode = currentConfig.modalità_corrente || 'led';
+            
+            fetch('/api/test_action', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({action: currentMode})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showAlert(`Test ${currentMode} eseguito!`, 'success');
+                } else {
+                    showAlert('Errore nel test', 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('Errore di connessione', 'error');
+            });
+        }
+        
+        function updateUI() {
+            // Aggiorna modalità attiva
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            const currentMode = currentConfig.modalità_corrente || 'led';
+            document.querySelector(`[data-mode="${currentMode}"]`).classList.add('active');
+            document.getElementById('currentMode').textContent = currentMode.toUpperCase();
+            
+            // Aggiorna campi form
+            document.getElementById('webUrl').value = currentConfig.web_url || '';
+            document.getElementById('pptPath').value = currentConfig.ppt_path || '';
+            document.getElementById('chromecastName').value = currentConfig.chromecast_name || '';
+            document.getElementById('youtubeId').value = currentConfig.youtube_video_id || '';
+            
+            // Aggiorna last update
+            if (currentConfig.last_updated) {
+                const lastUpdate = new Date(currentConfig.last_updated);
+                document.getElementById('lastUpdate').textContent = lastUpdate.toLocaleString('it-IT');
+            }
+        }
+        
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alert.style.position = 'fixed';
+            alert.style.top = '20px';
+            alert.style.right = '20px';
+            alert.style.zIndex = '9999';
+            alert.style.maxWidth = '300px';
+            
+            alertContainer.appendChild(alert);
+            
+            // Rimuovi dopo 5 secondi
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
