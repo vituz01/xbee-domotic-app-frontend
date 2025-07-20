@@ -135,7 +135,6 @@ function updateUI() {
 
     // Aggiorna campi form
     document.getElementById('webUrl').value = currentConfig.web_url || '';
-    document.getElementById('pptPath').value = currentConfig.ppt_path || '';
     document.getElementById('chromecastName').value = currentConfig.chromecast_name || '';
     document.getElementById('youtubeId').value = currentConfig.youtube_video_id || '';
 
