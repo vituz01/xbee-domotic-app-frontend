@@ -24,7 +24,6 @@ document.getElementById('configForm').addEventListener('submit', function (e) {
 });
 
 // Gestione bottoni
-document.getElementById('testBtn').addEventListener('click', testAction);
 document.getElementById('refreshBtn').addEventListener('click', updateStatus);
 
 function selectMode(mode) {
