@@ -123,29 +123,6 @@ function updateStatus() {
         });
 }
 
-function testAction() {
-    const currentMode = currentConfig.modalità_corrente || 'led';
-
-    fetch('/api/test_action', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ action: currentMode })
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                showAlert(`Test ${currentMode} eseguito!`, 'success');
-            } else {
-                showAlert('Errore nel test', 'error');
-            }
-        })
-        .catch(error => {
-            showAlert('Errore di connessione', 'error');
-        });
-}
-
 function updateUI() {
     // Aggiorna modalità attiva
     document.querySelectorAll('.mode-card').forEach(card => {
