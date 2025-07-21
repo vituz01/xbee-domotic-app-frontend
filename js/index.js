@@ -37,7 +37,7 @@ function selectMode(mode) {
     currentConfig.modalità_corrente = mode;
 
     // Invia al server
-    fetch('/api/config', {
+    fetch('http://localhost:3000/api/config', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ function selectMode(mode) {
 }
 
 function loadConfig() {
-    fetch('/api/config')
+    fetch('http://localhost:3000/api/config')
         .then(response => response.json())
         .then(data => {
             currentConfig = data;
@@ -78,7 +78,7 @@ function saveConfig() {
         config[key] = value;
     }
 
-    fetch('/api/config', {
+    fetch('http://localhost:3000/api/config', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
