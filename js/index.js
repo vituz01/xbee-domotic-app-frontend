@@ -27,14 +27,36 @@ document.getElementById('configForm').addEventListener('submit', function (e) {
 document.getElementById('refreshBtn').addEventListener('click', updateStatus);
 
 function selectMode(mode) {
+    // Verifica parametri richiesti per la modalità
+    const validationResult = validateModeParameters(mode);
+    if (!validationResult.isValid) {
+        showAlert(validationResult.message, 'error');
+        return;
+    }
+
     // Aggiorna UI
     document.querySelectorAll('.mode-card').forEach(card => {
         card.classList.remove('active');
     });
     document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
 
-    // Aggiorna configurazione
-    currentConfig.modalità_corrente = mode;
+    // Prepara configurazione con parametri richiesti
+    const config = { modalità_corrente: mode };
+    
+    // Aggiungi parametri richiesti in base alla modalità
+    if (mode === 'web') {
+        config.web_url = currentConfig.web_url || document.getElementById('webUrl').value;
+        if (!config.web_url) {
+            showAlert('URL web richiesto per la modalità web', 'error');
+            return;
+        }
+    } else if (mode === 'chromecast') {
+        config.chromecast_name = currentConfig.chromecast_name || document.getElementById('chromecastName').value;
+        if (!config.chromecast_name) {
+            showAlert('Nome Chromecast richiesto per la modalità chromecast', 'error');
+            return;
+        }
+    }
 
     // Invia al server
     fetch('http://localhost:3000/api/config', {
@@ -42,20 +64,59 @@ function selectMode(mode) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ modalità_corrente: mode })
+        body: JSON.stringify(config)
     })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
                 showAlert('Modalità cambiata con successo!', 'success');
                 document.getElementById('currentMode').textContent = mode.toUpperCase();
+                currentConfig.modalità_corrente = mode;
             } else {
-                showAlert('Errore nel cambio modalità', 'error');
+                showAlert(`Errore nel cambio modalità: ${data.message || 'Errore sconosciuto'}`, 'error');
             }
         })
         .catch(error => {
             showAlert('Errore di connessione', 'error');
+            console.error('Errore:', error);
         });
+}
+
+function validateModeParameters(mode) {
+    switch (mode) {
+        case 'web':
+            const webUrl = currentConfig.web_url || document.getElementById('webUrl').value;
+            if (!webUrl || webUrl.trim() === '') {
+                return {
+                    isValid: false,
+                    message: 'URL web richiesto per la modalità web. Compilare il campo nella configurazione.'
+                };
+            }
+            break;
+        
+        case 'chromecast':
+            const chromecastName = currentConfig.chromecast_name || document.getElementById('chromecastName').value;
+            if (!chromecastName || chromecastName.trim() === '') {
+                return {
+                    isValid: false,
+                    message: 'Nome Chromecast richiesto per la modalità chromecast. Compilare il campo nella configurazione.'
+                };
+            }
+            break;
+        
+        case 'led':
+        case 'youtube':
+            // Nessun parametro richiesto per queste modalità
+            break;
+        
+        default:
+            return {
+                isValid: false,
+                message: 'Modalità non riconosciuta'
+            };
+    }
+    
+    return { isValid: true };
 }
 
 function loadConfig() {
@@ -67,6 +128,7 @@ function loadConfig() {
         })
         .catch(error => {
             showAlert('Errore caricamento configurazione', 'error');
+            console.error('Errore:', error);
         });
 }
 
@@ -75,7 +137,21 @@ function saveConfig() {
     const config = {};
 
     for (let [key, value] of formData.entries()) {
-        config[key] = value;
+        if (value.trim() !== '') {
+            config[key] = value;
+        }
+    }
+
+    // Aggiungi la modalità corrente se esiste
+    if (currentConfig.modalità_corrente) {
+        config.modalità_corrente = currentConfig.modalità_corrente;
+        
+        // Valida parametri richiesti per la modalità corrente
+        const validationResult = validateConfigForMode(config, currentConfig.modalità_corrente);
+        if (!validationResult.isValid) {
+            showAlert(validationResult.message, 'error');
+            return;
+        }
     }
 
     fetch('http://localhost:3000/api/config', {
@@ -91,12 +167,37 @@ function saveConfig() {
                 showAlert('Configurazione salvata!', 'success');
                 loadConfig();
             } else {
-                showAlert('Errore salvataggio configurazione', 'error');
+                showAlert(`Errore salvataggio configurazione: ${data.message || 'Errore sconosciuto'}`, 'error');
             }
         })
         .catch(error => {
             showAlert('Errore di connessione', 'error');
+            console.error('Errore:', error);
         });
+}
+
+function validateConfigForMode(config, mode) {
+    switch (mode) {
+        case 'web':
+            if (!config.web_url || config.web_url.trim() === '') {
+                return {
+                    isValid: false,
+                    message: 'URL web richiesto per la modalità web corrente'
+                };
+            }
+            break;
+        
+        case 'chromecast':
+            if (!config.chromecast_name || config.chromecast_name.trim() === '') {
+                return {
+                    isValid: false,
+                    message: 'Nome Chromecast richiesto per la modalità chromecast corrente'
+                };
+            }
+            break;
+    }
+    
+    return { isValid: true };
 }
 
 function updateStatus() {
@@ -120,6 +221,7 @@ function updateStatus() {
         .catch(error => {
             document.getElementById('statusDot').style.background = '#ffc107';
             document.getElementById('statusText').textContent = 'Errore connessione';
+            console.error('Errore status:', error);
         });
 }
 
@@ -130,7 +232,10 @@ function updateUI() {
     });
 
     const currentMode = currentConfig.modalità_corrente || 'led';
-    document.querySelector(`[data-mode="${currentMode}"]`).classList.add('active');
+    const modeCard = document.querySelector(`[data-mode="${currentMode}"]`);
+    if (modeCard) {
+        modeCard.classList.add('active');
+    }
     document.getElementById('currentMode').textContent = currentMode.toUpperCase();
 
     // Aggiorna campi form
@@ -138,10 +243,41 @@ function updateUI() {
     document.getElementById('chromecastName').value = currentConfig.chromecast_name || '';
     document.getElementById('youtubeId').value = currentConfig.youtube_video_id || '';
 
+    // Aggiorna indicatori di parametri richiesti
+    updateRequiredFieldIndicators(currentMode);
+
     // Aggiorna last update
     if (currentConfig.last_updated) {
         const lastUpdate = new Date(currentConfig.last_updated);
         document.getElementById('lastUpdate').textContent = lastUpdate.toLocaleString('it-IT');
+    }
+}
+
+function updateRequiredFieldIndicators(currentMode) {
+    // Rimuovi tutti gli indicatori richiesti esistenti
+    document.querySelectorAll('.required-indicator').forEach(el => el.remove());
+    
+    // Aggiungi indicatori per la modalità corrente
+    if (currentMode === 'web') {
+        addRequiredIndicator('webUrl', 'Richiesto per modalità web');
+    } else if (currentMode === 'chromecast') {
+        addRequiredIndicator('chromecastName', 'Richiesto per modalità chromecast');
+    }
+}
+
+function addRequiredIndicator(fieldId, tooltip) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        const indicator = document.createElement('span');
+        indicator.className = 'required-indicator';
+        indicator.textContent = ' *';
+        indicator.style.color = '#dc3545';
+        indicator.title = tooltip;
+        
+        const label = field.closest('.form-group')?.querySelector('label');
+        if (label && !label.querySelector('.required-indicator')) {
+            label.appendChild(indicator);
+        }
     }
 }
 

@@ -59,18 +59,27 @@
                             <label for="webUrl">🌐 URL Web</label>
                             <input type="url" id="webUrl" name="web_url" 
                                    placeholder="https://www.youtube.com/watch?v=...">
+                            <div class="validation-message" id="webUrlValidation">
+                                URL web richiesto per modalità web
+                            </div>
                         </div>
                         
                         <div class="form-group">
                             <label for="chromecastName">📺 Nome Chromecast</label>
                             <input type="text" id="chromecastName" name="chromecast_name" 
                                    placeholder="Home TV">
+                            <div class="validation-message" id="chromecastNameValidation">
+                                Nome Chromecast richiesto per modalità chromecast
+                            </div>
                         </div>
                         
                         <div class="form-group">
                             <label for="youtubeId">🎥 ID Video YouTube</label>
                             <input type="text" id="youtubeId" name="youtube_video_id" 
                                    placeholder="K3OLrDA_nto">
+                            <div class="validation-message" id="youtubeIdValidation">
+                                Campo opzionale per modalità YouTube
+                            </div>
                         </div>
                     </div>
                     
@@ -89,6 +98,7 @@
                         <h3>💡 Modalità LED</h3>
                         <p><strong>Tocco breve:</strong> Cambia intensità LED</p>
                         <p>Il LED varia da spento a massima intensità</p>
+                        <p><em>Nessun parametro richiesto</em></p>
                     </div>
                     
                     <div style="background: white; padding: 20px; border-radius: 10px;">
@@ -96,6 +106,7 @@
                         <p><strong>Primo tocco:</strong> Apre il video</p>
                         <p><strong>Tocchi successivi:</strong> Play/Pausa</p>
                         <p><strong>Tocco lungo (3s):</strong> Chiude il video</p>
+                        <p><em style="color: #dc3545;">⚠️ Richiede URL web</em></p>
                     </div>
                     
                     <div style="background: white; padding: 20px; border-radius: 10px;">
@@ -103,6 +114,7 @@
                         <p><strong>Primo tocco:</strong> Avvia video</p>
                         <p><strong>Tocchi successivi:</strong> Play/Pausa</p>
                         <p><strong>Tocco lungo (3s):</strong> Stop video</p>
+                        <p><em style="color: #dc3545;">⚠️ Richiede nome Chromecast</em></p>
                     </div>
                 </div>
             </div>
