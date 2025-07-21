@@ -201,7 +201,7 @@ function validateConfigForMode(config, mode) {
 }
 
 function updateStatus() {
-    fetch('/api/status')
+    fetch('http://localhost:3000/api/status')
         .then(response => response.json())
         .then(data => {
             const statusDot = document.getElementById('statusDot');
