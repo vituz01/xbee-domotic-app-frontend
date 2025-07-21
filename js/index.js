@@ -45,13 +45,13 @@ function selectMode(mode) {
     
     // Aggiungi parametri richiesti in base alla modalità
     if (mode === 'web') {
-        config.web_url = currentConfig.web_url || document.getElementById('webUrl').value;
+        config.web_url = document.getElementById('webUrl').value || currentConfig.web_url;
         if (!config.web_url) {
             showAlert('URL web richiesto per la modalità web', 'error');
             return;
         }
     } else if (mode === 'chromecast') {
-        config.chromecast_name = currentConfig.chromecast_name || document.getElementById('chromecastName').value;
+        config.chromecast_name = document.getElementById('chromecastName').value || currentConfig.chromecast_name;
         if (!config.chromecast_name) {
             showAlert('Nome Chromecast richiesto per la modalità chromecast', 'error');
             return;
