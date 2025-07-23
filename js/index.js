@@ -52,8 +52,9 @@ function selectMode(mode) {
         }
     } else if (mode === 'chromecast') {
         config.chromecast_name = document.getElementById('chromecastName').value || currentConfig.chromecast_name;
-        if (!config.chromecast_name) {
-            showAlert('Nome Chromecast richiesto per la modalità chromecast', 'error');
+        config.youtube_video_id = document.getElementById('youtubeId').value || currentConfig.youtube_video_id;
+        if (!config.chromecast_name || !config.youtube_video_id) {
+            showAlert('Nome Chromecast/Youtube video ID richiesto per la modalità chromecast', 'error');
             return;
         }
     }
@@ -96,16 +97,22 @@ function validateModeParameters(mode) {
         
         case 'chromecast':
             const chromecastName = currentConfig.chromecast_name || document.getElementById('chromecastName').value;
+            const youtubeId = currentConfig.youtube_video_id || document.getElementById('youtubeId').value;
             if (!chromecastName || chromecastName.trim() === '') {
                 return {
                     isValid: false,
                     message: 'Nome Chromecast richiesto per la modalità chromecast. Compilare il campo nella configurazione.'
                 };
             }
+            if (!youtubeId || youtubeId.trim() === '') {
+                return {
+                    isValid: false,
+                    message: 'Youtube video ID richiesto per la modalità chromecast. Compilare il campo nella configurazione.'
+                };
+            }
             break;
         
         case 'led':
-        case 'youtube':
             // Nessun parametro richiesto per queste modalità
             break;
         
