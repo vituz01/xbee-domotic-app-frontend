@@ -1,3 +1,7 @@
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000' 
+    : `http://${window.location.hostname}:3000`;
+
 let currentConfig = {};
 
 // Carica configurazione all'avvio
@@ -60,7 +64,7 @@ function selectMode(mode) {
     }
 
     // Invia al server
-    fetch('http://localhost:3000/api/config', {
+    fetch(`${API_BASE_URL}/api/config`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -127,7 +131,7 @@ function validateModeParameters(mode) {
 }
 
 function loadConfig() {
-    fetch('http://localhost:3000/api/config')
+    fetch(`${API_BASE_URL}/api/config`)
         .then(response => response.json())
         .then(data => {
             currentConfig = data;
@@ -161,7 +165,7 @@ function saveConfig() {
         }
     }
 
-    fetch('http://localhost:3000/api/config', {
+    fetch(`${API_BASE_URL}/api/config`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -208,7 +212,7 @@ function validateConfigForMode(config, mode) {
 }
 
 function updateStatus() {
-    fetch('http://localhost:3000/api/status')
+    fetch(`${API_BASE_URL}/api/status`)
         .then(response => response.json())
         .then(data => {
             const statusDot = document.getElementById('statusDot');
