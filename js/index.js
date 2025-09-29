@@ -54,29 +54,6 @@ function selectMode(mode) {
             showAlert('Email richiesta per la modalità PowerPoint', 'error');
             return;
         }
-        // Chiamata API per invio email
-        fetch(`${API_BASE_URL}/api/send_ppt_email`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email: config.ppt_email })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    showAlert('Email inviata con successo!', 'success');
-                    document.getElementById('currentMode').textContent = mode.toUpperCase();
-                    currentConfig.modalità_corrente = mode;
-                } else {
-                    showAlert(`Errore invio email: ${data.message || 'Errore sconosciuto'}`, 'error');
-                }
-            })
-            .catch(error => {
-                showAlert('Errore di connessione', 'error');
-                console.error('Errore:', error);
-            });
-        return;
     } else if (mode === 'chromecast') {
         config.chromecast_name = document.getElementById('chromecastName').value || currentConfig.chromecast_name;
         config.youtube_video_id = document.getElementById('youtubeId').value || currentConfig.youtube_video_id;
@@ -86,7 +63,7 @@ function selectMode(mode) {
         }
     }
 
-    // Invia al server per led/chromecast
+    // Invia al server per led/chromecast/ppt
     fetch(`${API_BASE_URL}/api/config`, {
         method: 'POST',
         headers: {
