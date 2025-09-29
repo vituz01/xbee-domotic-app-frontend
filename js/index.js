@@ -1,5 +1,6 @@
-const API_BASE_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000' 
+
+const API_BASE_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000'
     : `http://${window.location.hostname}:3000`;
 
 let currentConfig = {};
@@ -46,14 +47,36 @@ function selectMode(mode) {
 
     // Prepara configurazione con parametri richiesti
     const config = { modalità_corrente: mode };
-    
-    // Aggiungi parametri richiesti in base alla modalità
-    if (mode === 'web') {
-        config.web_url = document.getElementById('webUrl').value || currentConfig.web_url;
-        if (!config.web_url) {
-            showAlert('URL web richiesto per la modalità web', 'error');
+
+    if (mode === 'powerpoint') {
+        config.ppt_email = document.getElementById('email').value || currentConfig.ppt_email;
+        if (!config.ppt_email) {
+            showAlert('Email richiesta per la modalità PowerPoint', 'error');
             return;
         }
+        // Chiamata API per invio email
+        fetch(`${API_BASE_URL}/api/send_ppt_email`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: config.ppt_email })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showAlert('Email inviata con successo!', 'success');
+                    document.getElementById('currentMode').textContent = mode.toUpperCase();
+                    currentConfig.modalità_corrente = mode;
+                } else {
+                    showAlert(`Errore invio email: ${data.message || 'Errore sconosciuto'}`, 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('Errore di connessione', 'error');
+                console.error('Errore:', error);
+            });
+        return;
     } else if (mode === 'chromecast') {
         config.chromecast_name = document.getElementById('chromecastName').value || currentConfig.chromecast_name;
         config.youtube_video_id = document.getElementById('youtubeId').value || currentConfig.youtube_video_id;
@@ -63,7 +86,7 @@ function selectMode(mode) {
         }
     }
 
-    // Invia al server
+    // Invia al server per led/chromecast
     fetch(`${API_BASE_URL}/api/config`, {
         method: 'POST',
         headers: {
@@ -89,16 +112,15 @@ function selectMode(mode) {
 
 function validateModeParameters(mode) {
     switch (mode) {
-        case 'web':
-            const webUrl = currentConfig.web_url || document.getElementById('webUrl').value;
-            if (!webUrl || webUrl.trim() === '') {
+        case 'powerpoint':
+            const pptEmail = currentConfig.ppt_email || document.getElementById('email').value;
+            if (!pptEmail || pptEmail.trim() === '') {
                 return {
                     isValid: false,
-                    message: 'URL web richiesto per la modalità web. Compilare il campo nella configurazione.'
+                    message: 'Email richiesta per la modalità PowerPoint. Compilare il campo nella configurazione.'
                 };
             }
             break;
-        
         case 'chromecast':
             const chromecastName = currentConfig.chromecast_name || document.getElementById('chromecastName').value;
             const youtubeId = currentConfig.youtube_video_id || document.getElementById('youtubeId').value;
@@ -115,18 +137,15 @@ function validateModeParameters(mode) {
                 };
             }
             break;
-        
         case 'led':
-            // Nessun parametro richiesto per queste modalità
+            // Nessun parametro richiesto
             break;
-        
         default:
             return {
                 isValid: false,
                 message: 'Modalità non riconosciuta'
             };
     }
-    
     return { isValid: true };
 }
 
@@ -156,7 +175,6 @@ function saveConfig() {
     // Aggiungi la modalità corrente se esiste
     if (currentConfig.modalità_corrente) {
         config.modalità_corrente = currentConfig.modalità_corrente;
-        
         // Valida parametri richiesti per la modalità corrente
         const validationResult = validateConfigForMode(config, currentConfig.modalità_corrente);
         if (!validationResult.isValid) {
@@ -187,126 +205,123 @@ function saveConfig() {
         });
 }
 
-function validateConfigForMode(config, mode) {
-    switch (mode) {
-        case 'web':
-            if (!config.web_url || config.web_url.trim() === '') {
-                return {
-                    isValid: false,
-                    message: 'URL web richiesto per la modalità web corrente'
-                };
-            }
-            break;
-        
-        case 'chromecast':
-            if (!config.chromecast_name || config.chromecast_name.trim() === '') {
-                return {
-                    isValid: false,
-                    message: 'Nome Chromecast richiesto per la modalità chromecast corrente'
-                };
-            }
-            break;
+    function validateConfigForMode(config, mode) {
+        switch (mode) {
+            case 'powerpoint':
+                if (!config.ppt_email || config.ppt_email.trim() === '') {
+                    return {
+                        isValid: false,
+                        message: 'Email richiesta per la modalità PowerPoint corrente'
+                    };
+                }
+                break;
+            case 'chromecast':
+                if (!config.chromecast_name || config.chromecast_name.trim() === '') {
+                    return {
+                        isValid: false,
+                        message: 'Nome Chromecast richiesto per la modalità chromecast corrente'
+                    };
+                }
+                break;
+        }
+        return { isValid: true };
     }
-    
-    return { isValid: true };
-}
+    function updateStatus() {
+        fetch(`${API_BASE_URL}/api/status`)
+            .then(response => response.json())
+            .then(data => {
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
 
-function updateStatus() {
-    fetch(`${API_BASE_URL}/api/status`)
-        .then(response => response.json())
-        .then(data => {
-            const statusDot = document.getElementById('statusDot');
-            const statusText = document.getElementById('statusText');
+                if (data.status === 'running') {
+                    statusDot.style.background = '#28a745';
+                    statusText.textContent = 'Sistema in funzione';
+                } else {
+                    statusDot.style.background = '#dc3545';
+                    statusText.textContent = 'Sistema offline';
+                }
 
-            if (data.status === 'running') {
-                statusDot.style.background = '#28a745';
-                statusText.textContent = 'Sistema in funzione';
-            } else {
-                statusDot.style.background = '#dc3545';
-                statusText.textContent = 'Sistema offline';
-            }
+                const lastUpdate = new Date(data.timestamp);
+                document.getElementById('lastUpdate').textContent = lastUpdate.toLocaleString('it-IT');
+            })
+            .catch(error => {
+                document.getElementById('statusDot').style.background = '#ffc107';
+                document.getElementById('statusText').textContent = 'Errore connessione';
+                console.error('Errore status:', error);
+            });
+    }
 
-            const lastUpdate = new Date(data.timestamp);
-            document.getElementById('lastUpdate').textContent = lastUpdate.toLocaleString('it-IT');
-        })
-        .catch(error => {
-            document.getElementById('statusDot').style.background = '#ffc107';
-            document.getElementById('statusText').textContent = 'Errore connessione';
-            console.error('Errore status:', error);
+    function updateUI() {
+        // Aggiorna modalità attiva
+        document.querySelectorAll('.mode-card').forEach(card => {
+            card.classList.remove('active');
         });
-}
 
-function updateUI() {
-    // Aggiorna modalità attiva
-    document.querySelectorAll('.mode-card').forEach(card => {
-        card.classList.remove('active');
-    });
+        const currentMode = currentConfig.modalità_corrente || 'led';
+        const modeCard = document.querySelector(`[data-mode="${currentMode}"]`);
+        if (modeCard) {
+            modeCard.classList.add('active');
+        }
+        document.getElementById('currentMode').textContent = currentMode.toUpperCase();
 
-    const currentMode = currentConfig.modalità_corrente || 'led';
-    const modeCard = document.querySelector(`[data-mode="${currentMode}"]`);
-    if (modeCard) {
-        modeCard.classList.add('active');
-    }
-    document.getElementById('currentMode').textContent = currentMode.toUpperCase();
+        // Aggiorna campi form
+        document.getElementById('email').value = currentConfig.ppt_email || '';
+        document.getElementById('chromecastName').value = currentConfig.chromecast_name || '';
+        document.getElementById('youtubeId').value = currentConfig.youtube_video_id || '';
 
-    // Aggiorna campi form
-    document.getElementById('webUrl').value = currentConfig.web_url || '';
-    document.getElementById('chromecastName').value = currentConfig.chromecast_name || '';
-    document.getElementById('youtubeId').value = currentConfig.youtube_video_id || '';
+        // Aggiorna indicatori di parametri richiesti
+        updateRequiredFieldIndicators(currentMode);
 
-    // Aggiorna indicatori di parametri richiesti
-    updateRequiredFieldIndicators(currentMode);
-
-    // Aggiorna last update
-    if (currentConfig.last_updated) {
-        const lastUpdate = new Date(currentConfig.last_updated);
-        document.getElementById('lastUpdate').textContent = lastUpdate.toLocaleString('it-IT');
-    }
-}
-
-function updateRequiredFieldIndicators(currentMode) {
-    // Rimuovi tutti gli indicatori richiesti esistenti
-    document.querySelectorAll('.required-indicator').forEach(el => el.remove());
-    
-    // Aggiungi indicatori per la modalità corrente
-    if (currentMode === 'web') {
-        addRequiredIndicator('webUrl', 'Richiesto per modalità web');
-    } else if (currentMode === 'chromecast') {
-        addRequiredIndicator('chromecastName', 'Richiesto per modalità chromecast');
-    }
-}
-
-function addRequiredIndicator(fieldId, tooltip) {
-    const field = document.getElementById(fieldId);
-    if (field) {
-        const indicator = document.createElement('span');
-        indicator.className = 'required-indicator';
-        indicator.textContent = ' *';
-        indicator.style.color = '#dc3545';
-        indicator.title = tooltip;
-        
-        const label = field.closest('.form-group')?.querySelector('label');
-        if (label && !label.querySelector('.required-indicator')) {
-            label.appendChild(indicator);
+        // Aggiorna last update
+        if (currentConfig.last_updated) {
+            const lastUpdate = new Date(currentConfig.last_updated);
+            document.getElementById('lastUpdate').textContent = lastUpdate.toLocaleString('it-IT');
         }
     }
-}
 
-function showAlert(message, type) {
-    const alertContainer = document.getElementById('alertContainer');
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type}`;
-    alert.textContent = message;
-    alert.style.position = 'fixed';
-    alert.style.top = '20px';
-    alert.style.right = '20px';
-    alert.style.zIndex = '9999';
-    alert.style.maxWidth = '300px';
+    function updateRequiredFieldIndicators(currentMode) {
+        // Rimuovi tutti gli indicatori richiesti esistenti
+        document.querySelectorAll('.required-indicator').forEach(el => el.remove());
 
-    alertContainer.appendChild(alert);
+        // Aggiungi indicatori per la modalità corrente
+        if (currentMode === 'powerpoint') {
+            addRequiredIndicator('email', 'Richiesto per modalità PowerPoint');
+        } else if (currentMode === 'chromecast') {
+            addRequiredIndicator('chromecastName', 'Richiesto per modalità chromecast');
+        }
+    }
 
-    // Rimuovi dopo 5 secondi
-    setTimeout(() => {
-        alert.remove();
-    }, 5000);
-}
+    function addRequiredIndicator(fieldId, tooltip) {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            const indicator = document.createElement('span');
+            indicator.className = 'required-indicator';
+            indicator.textContent = ' *';
+            indicator.style.color = '#dc3545';
+            indicator.title = tooltip;
+
+            const label = field.closest('.form-group')?.querySelector('label');
+            if (label && !label.querySelector('.required-indicator')) {
+                label.appendChild(indicator);
+            }
+        }
+    }
+
+    function showAlert(message, type) {
+        const alertContainer = document.getElementById('alertContainer');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        alert.style.position = 'fixed';
+        alert.style.top = '20px';
+        alert.style.right = '20px';
+        alert.style.zIndex = '9999';
+        alert.style.maxWidth = '300px';
+
+        alertContainer.appendChild(alert);
+
+        // Rimuovi dopo 5 secondi
+        setTimeout(() => {
+            alert.remove();
+        }, 5000);
+    }

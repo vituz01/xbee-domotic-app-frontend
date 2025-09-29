@@ -30,23 +30,21 @@
             <div class="section">
                 <h2>🎯 Seleziona Modalità</h2>
                 <div class="mode-selector">
-                    <div class="mode-card" data-mode="led">
-                        <div class="icon">💡</div>
-                        <h3>LED</h3>
-                        <p>Controlla l'intensità del LED</p>
-                    </div>
-                    
-                    <div class="mode-card" data-mode="web">
-                        <div class="icon">🌐</div>
-                        <h3>Web</h3>
-                        <p>Riproduci video dal web</p>
-                    </div>
-                    
-                    <div class="mode-card" data-mode="chromecast">
-                        <div class="icon">📺</div>
-                        <h3>Chromecast</h3>
-                        <p>Riproduci su TV</p>
-                    </div>
+                        <div class="mode-card" data-mode="led">
+                            <div class="icon">💡</div>
+                            <h3>LED</h3>
+                            <p>Accendi o spegni il LED</p>
+                        </div>
+                        <div class="mode-card" data-mode="powerpoint">
+                            <div class="icon">📑</div>
+                            <h3>PowerPoint</h3>
+                            <p>Invia link PPT via email</p>
+                        </div>
+                        <div class="mode-card" data-mode="chromecast">
+                            <div class="icon">📺</div>
+                            <h3>Chromecast</h3>
+                            <p>Riproduci su TV</p>
+                        </div>
                 </div>
             </div>
             
@@ -56,30 +54,30 @@
                 <form id="configForm">
                     <div class="config-form">
                         <div class="form-group">
-                            <label for="webUrl">🌐 URL Web</label>
-                            <input type="url" id="webUrl" name="web_url" 
-                                   placeholder="https://www.youtube.com/watch?v=...">
-                            <div class="validation-message" id="webUrlValidation">
-                                URL web richiesto per modalità web
-                            </div>
+                                <label for="email">📧 Email destinatario PPT</label>
+                                <input type="email" id="email" name="ppt_email" 
+                                       placeholder="utente@email.com">
+                                <div class="validation-message" id="emailValidation">
+                                    Email richiesta per modalità PowerPoint
+                                </div>
                         </div>
                         
                         <div class="form-group">
-                            <label for="chromecastName">📺 Nome Chromecast</label>
-                            <input type="text" id="chromecastName" name="chromecast_name" 
-                                   placeholder="Home TV">
-                            <div class="validation-message" id="chromecastNameValidation">
-                                Nome Chromecast richiesto per modalità chromecast
-                            </div>
+                                <label for="chromecastName">📺 Nome Chromecast</label>
+                                <input type="text" id="chromecastName" name="chromecast_name" 
+                                       placeholder="Home TV">
+                                <div class="validation-message" id="chromecastNameValidation">
+                                    Nome Chromecast richiesto per modalità chromecast
+                                </div>
                         </div>
                         
                         <div class="form-group">
-                            <label for="youtubeId">🎥 ID Video YouTube</label>
-                            <input type="text" id="youtubeId" name="youtube_video_id" 
-                                   placeholder="K3OLrDA_nto">
-                            <div class="validation-message" id="youtubeIdValidation">
-                                Campo opzionale per modalità YouTube
-                            </div>
+                                <label for="youtubeId">🎥 ID Video YouTube</label>
+                                <input type="text" id="youtubeId" name="youtube_video_id" 
+                                       placeholder="K3OLrDA_nto">
+                                <div class="validation-message" id="youtubeIdValidation">
+                                    Campo opzionale per modalità Chromecast
+                                </div>
                         </div>
                     </div>
                     
@@ -94,28 +92,23 @@
             <div class="section">
                 <h2>📖 Istruzioni</h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                    <div style="background: white; padding: 20px; border-radius: 10px;">
-                        <h3>💡 Modalità LED</h3>
-                        <p><strong>Tocco breve:</strong> Cambia intensità LED</p>
-                        <p>Il LED varia da spento a massima intensità</p>
-                        <p><em>Nessun parametro richiesto</em></p>
-                    </div>
-                    
-                    <div style="background: white; padding: 20px; border-radius: 10px;">
-                        <h3>🌐 Modalità Web</h3>
-                        <p><strong>Primo tocco:</strong> Apre il video</p>
-                        <p><strong>Tocchi successivi:</strong> Play/Pausa</p>
-                        <p><strong>Tocco lungo (3s):</strong> Chiude il video</p>
-                        <p><em style="color: #dc3545;">⚠️ Richiede URL web</em></p>
-                    </div>
-                    
-                    <div style="background: white; padding: 20px; border-radius: 10px;">
-                        <h3>📺 Modalità Chromecast</h3>
-                        <p><strong>Primo tocco:</strong> Avvia video</p>
-                        <p><strong>Tocchi successivi:</strong> Play/Pausa</p>
-                        <p><strong>Tocco lungo (3s):</strong> Stop video</p>
-                        <p><em style="color: #dc3545;">⚠️ Richiede nome Chromecast</em></p>
-                    </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px;">
+                            <h3>💡 Modalità LED</h3>
+                            <p><strong>Tocco breve:</strong> Accende/spegne il LED</p>
+                            <p><em>Nessun parametro richiesto</em></p>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px;">
+                            <h3>📑 Modalità PowerPoint</h3>
+                            <p><strong>Tocco breve:</strong> Invia email con link PPT</p>
+                            <p><em style="color: #dc3545;">⚠️ Richiede email destinatario</em></p>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px;">
+                            <h3>📺 Modalità Chromecast</h3>
+                            <p><strong>Primo tocco:</strong> Avvia video</p>
+                            <p><strong>Tocchi successivi:</strong> Play/Pausa</p>
+                            <p><strong>Tocco lungo (3s):</strong> Stop video</p>
+                            <p><em style="color: #dc3545;">⚠️ Richiede nome Chromecast</em></p>
+                        </div>
                 </div>
             </div>
         </div>
