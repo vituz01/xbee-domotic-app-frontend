@@ -48,10 +48,16 @@ function selectMode(mode) {
     // Prepara configurazione con parametri richiesti
     const config = { modalità_corrente: mode };
 
-    if (mode === 'powerpoint') {
+    if (mode === 'ppt') {
         config.ppt_email = document.getElementById('email').value || currentConfig.ppt_email;
+        config.ppt_link = document.getElementById('pptLink')?.value || currentConfig.ppt_link;
         if (!config.ppt_email) {
             showAlert('Email richiesta per la modalità PowerPoint', 'error');
+            return;
+        }
+        // ppt_link is optional; if provided, validate URL format
+        if (config.ppt_link && !isValidHttpUrl(config.ppt_link)) {
+            showAlert('Link PPT non valido. Inserire un URL valido (https://...)', 'error');
             return;
         }
     } else if (mode === 'chromecast') {
@@ -89,12 +95,20 @@ function selectMode(mode) {
 
 function validateModeParameters(mode) {
     switch (mode) {
-        case 'powerpoint':
+        case 'ppt':
             const pptEmail = currentConfig.ppt_email || document.getElementById('email').value;
+            const pptLink = currentConfig.ppt_link || document.getElementById('pptLink')?.value;
             if (!pptEmail || pptEmail.trim() === '') {
                 return {
                     isValid: false,
                     message: 'Email richiesta per la modalità PowerPoint. Compilare il campo nella configurazione.'
+                };
+            }
+            // pptLink is optional; if provided, validate URL format
+            if (pptLink && pptLink.trim() !== '' && !isValidHttpUrl(pptLink)) {
+                return {
+                    isValid: false,
+                    message: 'Link PPT non valido. Inserire un URL valido (https://...)'
                 };
             }
             break;
@@ -137,6 +151,15 @@ function loadConfig() {
             showAlert('Errore caricamento configurazione', 'error');
             console.error('Errore:', error);
         });
+}
+
+function isValidHttpUrl(string) {
+    try {
+        const url = new URL(string);
+        return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch (_) {
+        return false;
+    }
 }
 
 function saveConfig() {
@@ -184,13 +207,20 @@ function saveConfig() {
 
     function validateConfigForMode(config, mode) {
         switch (mode) {
-            case 'powerpoint':
-                if (!config.ppt_email || config.ppt_email.trim() === '') {
-                    return {
-                        isValid: false,
-                        message: 'Email richiesta per la modalità PowerPoint corrente'
-                    };
-                }
+            case 'ppt':
+                    if (!config.ppt_email || config.ppt_email.trim() === '') {
+                        return {
+                            isValid: false,
+                            message: 'Email richiesta per la modalità PowerPoint corrente'
+                        };
+                    }
+                    // ppt_link optional; if provided validate format
+                    if (config.ppt_link && config.ppt_link.trim() !== '' && !isValidHttpUrl(config.ppt_link)) {
+                        return {
+                            isValid: false,
+                            message: 'Link PPT non valido. Inserire un URL valido (https://...)'
+                        };
+                    }
                 break;
             case 'chromecast':
                 if (!config.chromecast_name || config.chromecast_name.trim() === '') {
@@ -243,6 +273,8 @@ function saveConfig() {
 
         // Aggiorna campi form
         document.getElementById('email').value = currentConfig.ppt_email || '';
+        const pptInput = document.getElementById('pptLink');
+        if (pptInput) pptInput.value = currentConfig.ppt_link || '';
         document.getElementById('chromecastName').value = currentConfig.chromecast_name || '';
         document.getElementById('youtubeId').value = currentConfig.youtube_video_id || '';
 
@@ -254,6 +286,19 @@ function saveConfig() {
             const lastUpdate = new Date(currentConfig.last_updated);
             document.getElementById('lastUpdate').textContent = lastUpdate.toLocaleString('it-IT');
         }
+
+        // Mostra link PPT se presente
+        const pptContainer = document.getElementById('pptLinkContainer');
+        const currentPptLink = document.getElementById('currentPptLink');
+        if (currentConfig.ppt_link) {
+            if (pptContainer) pptContainer.style.display = 'block';
+            if (currentPptLink) {
+                currentPptLink.href = currentConfig.ppt_link;
+                currentPptLink.textContent = currentConfig.ppt_link;
+            }
+        } else {
+            if (pptContainer) pptContainer.style.display = 'none';
+        }
     }
 
     function updateRequiredFieldIndicators(currentMode) {
@@ -261,7 +306,7 @@ function saveConfig() {
         document.querySelectorAll('.required-indicator').forEach(el => el.remove());
 
         // Aggiungi indicatori per la modalità corrente
-        if (currentMode === 'powerpoint') {
+        if (currentMode === 'ppt') {
             addRequiredIndicator('email', 'Richiesto per modalità PowerPoint');
         } else if (currentMode === 'chromecast') {
             addRequiredIndicator('chromecastName', 'Richiesto per modalità chromecast');
