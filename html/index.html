@@ -23,6 +23,7 @@
                     <span id="statusText">Sistema in funzione</span>
                 </div>
                 <p><strong>Modalità attuale:</strong> <span id="currentMode">LED</span></p>
+                <p id="pptLinkContainer" style="display:none;"><strong>Link PPT:</strong> <a href="#" id="currentPptLink" target="_blank"></a></p>
                 <p><strong>Ultimo aggiornamento:</strong> <span id="lastUpdate">Caricamento...</span></p>
             </div>
             
@@ -35,7 +36,7 @@
                             <h3>LED</h3>
                             <p>Accendi o spegni il LED</p>
                         </div>
-                        <div class="mode-card" data-mode="powerpoint">
+                        <div class="mode-card" data-mode="ppt">
                             <div class="icon">📑</div>
                             <h3>PowerPoint</h3>
                             <p>Invia link PPT via email</p>
@@ -59,6 +60,14 @@
                                        placeholder="utente@email.com">
                                 <div class="validation-message" id="emailValidation">
                                     Email richiesta per modalità PowerPoint
+                                </div>
+                        </div>
+                        <div class="form-group">
+                                <label for="pptLink">🔗 Link PowerPoint (Google Drive)</label>
+                                <input type="url" id="pptLink" name="ppt_link"
+                                       placeholder="https://drive.google.com/drive/folders/...">
+                                <div class="validation-message" id="pptLinkValidation">
+                                    Link PPT opzionale — inserire se si vuole inviare un link specifico
                                 </div>
                         </div>
                         
