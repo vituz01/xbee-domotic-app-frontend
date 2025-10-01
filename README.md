@@ -42,6 +42,7 @@ The code communicates with these server endpoints:
 
 ## Demo layout
 
-<img width="775" height="898" alt="image" src="https://github.com/user-attachments/assets/e3358783-a4cd-4f0e-87f9-641d85046e7a" />
+<img width="750" height="896" alt="image" src="https://github.com/user-attachments/assets/39bd0e7a-6a6c-471c-a343-d86b3f08b33f" />
+
 
 
