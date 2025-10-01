@@ -1,5 +1,5 @@
 # xbee-domotic-app-frontend
-This project concerns the development of a web control panel used to manage a local network composed by a coordinator micro-controller, 3 Xbee modules and a touch sensor that can perform various actions (turn on LEDs, open web pages, etc.) based on the selected mode.
+This project concerns the development of a web control panel used to manage a local network composed by a coordinator micro-controller, 3 Xbee modules and a touch sensor that can perform various actions (turn on LEDs, send a PPT via email, etc.) based on the selected mode.
 
 Here’s an explanation of its main features:
 
@@ -13,13 +13,13 @@ Here’s an explanation of its main features:
 
 ### Mode Management
 
-1. Allows selection between different operating modes (LED, web, Chromecast)
+1. Allows selection between different operating modes (LED, powerpoint, Chromecast)
 2. When a mode is clicked, it updates the visual interface and sends the new configuration to the server
 3. Displays which mode is currently active
 
 ### Configuration
 
-1. Manages a form to save settings such as web URL, Chromecast name, and YouTube video ID
+1. Manages a form to save settings such as web URL, Chromecast name, YouTube video ID and PPT link
 2. Saves the configuration to the server via API calls
 
 ### Status Monitoring
